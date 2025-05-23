@@ -12,7 +12,7 @@ test.describe('Astar Financial Website Link Tests', () => {
         context = await browser.newContext(); // Create a new browser context
         page = await context.newPage(); // Create a single page for the test suite
         try {
-            await page.goto(baseUrl, { timeout: 20000, waitUntil: 'domcontentloaded' }); // Revert to waitUntil: 'domcontentloaded'
+            await page.goto(baseUrl, { timeout: 10000, waitUntil: 'domcontentloaded' }); // Revert to waitUntil: 'domcontentloaded'
             console.log(`Navigated to homepage: ${baseUrl}`);
         } catch (error) {
             console.error(`Critical: Error navigating to homepage ${baseUrl}: ${error.message}`);
@@ -30,6 +30,8 @@ test.describe('Astar Financial Website Link Tests', () => {
     });
 
     async function fetchLinkStructure(): Promise<Record<string, string>> {
+        const startTime = Date.now(); // Start timing
+
         const response: APIResponse = await context.request.get(baseUrl);
         if (!response.ok()) {
             throw new Error(`Failed to fetch link structure from ${baseUrl}`);
@@ -44,12 +46,24 @@ test.describe('Astar Financial Website Link Tests', () => {
         while ((match = dropdownRegex.exec(body)) !== null) {
             const parentLink = match[1];
             const dropdownContent = match[2];
+
+
+
             let subMatch;
             while ((subMatch = linkRegex.exec(dropdownContent)) !== null) {
                 const childLink = subMatch[1];
-                linkStructure[childLink] = parentLink; // Map child link to its parent dropdown link
+
+                if (!childLink || childLink === '#') {
+                    console.warn(`Skipping invalid child link: ${childLink}`);
+                    continue;
+                }
+
+                linkStructure[childLink] = parentLink;
             }
         }
+
+        const endTime = Date.now(); // End timing
+        console.log(`Time taken to build link structure: ${endTime - startTime}ms`);
 
         console.log('Link Structure:');
         for (const [child, parent] of Object.entries(linkStructure)) {
@@ -100,34 +114,37 @@ test.describe('Astar Financial Website Link Tests', () => {
                 console.warn(`Child link not interactable: ${childLink}`);
                 continue;
             }
+            if(childLink!='#') {
+                console.log(`Child link is interactable: ${childLink}`);
+                const startTime = Date.now();
+                try {
+                    await Promise.all([
+                        page.waitForURL(childLink, {  timeout: 20000, waitUntil: 'domcontentloaded' }), // Wait for the URL to change}),
+                        childLocator.click({ force: true }), // Click the child link
+                    ]);
 
-            const startTime = Date.now();
-            try {
-                await Promise.all([
-                    page.waitForURL(childLink, { timeout: 20000 }),
-                    childLocator.click({ force: true }), // Click the child link
-                ]);
+                    await page.waitForTimeout(500); // Add a 500ms wait after the click
 
-                await page.waitForTimeout(500); // Add a 500ms wait after the click
+                    const endTime = Date.now();
+                    console.log(`Response time for ${childLink}: ${endTime - startTime}ms`);
 
-                const endTime = Date.now();
-                console.log(`Response time for ${childLink}: ${endTime - startTime}ms`);
-
-                const title = await page.title();
-                expect(title).not.toBe('');
-                console.log(`Page title for ${childLink}: ${title}`);
-            } catch (error) {
-                console.error(`Error testing link ${childLink}: ${error.message}`);
-            } finally {
-                if (page.url() !== baseUrl) {
-                    try {
-                        await page.goto(baseUrl, { timeout: 20000, waitUntil: 'domcontentloaded' }); // Revert to waitUntil: 'domcontentloaded'
-                    } catch (error) {
-                        console.error(`Failed to navigate back to ${baseUrl}: ${error.message}`);
-                        return;
+                    const title = await page.title();
+                    expect(title).not.toBe('');
+                    console.log(`Page title for ${childLink}: ${title}`);
+                } catch (error) {
+                    console.error(`Error testing link ${childLink}: ${error.message}`);
+                } finally {
+                    if (page.url() !== baseUrl) {
+                        try {
+                            await page.goto(baseUrl, { timeout: 20000, waitUntil: 'domcontentloaded' }); // Revert to waitUntil: 'domcontentloaded'
+                        } catch (error) {
+                            console.error(`Failed to navigate back to ${baseUrl}: ${error.message}`);
+                            return;
+                        }
                     }
                 }
             }
+            
         }
     });
 });
