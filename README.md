@@ -38,6 +38,17 @@ This repository contains automated test scripts for the Astar Financial website 
 
 ---
 
+## Environment-Specific Configurations
+1. Create a `.env` file in the root directory:
+   ```plaintext
+   BASE_URL=https://staging.astarfinancial.com.au/
+   DEFAULT_TIMEOUT=30000
+   ```
+
+2. The tests will automatically use the values from `.env`.
+
+---
+
 ## Test Structure
 The repository is organized as follows:
 
@@ -78,6 +89,20 @@ astar_test/
    ```
 
 ---
+
+## Running Tests with Reporting
+1. Run all tests with HTML reporting:
+   ```bash
+   npm run test
+   ```
+
+2. View the test report:
+   ```bash
+   npm run show-report
+   ```
+
+---
+
 
 ## Test Cases
 ### 1. Verify Links on Homepage

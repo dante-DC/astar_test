@@ -1,34 +1,8 @@
-import { test as baseTest, expect, Page,Locator } from '@playwright/test';
-import { fileURLToPath } from 'url';
-import path, { dirname } from 'path';
+import { test as baseTest, expect, Page, Locator } from '@playwright/test';
+import { config } from '../config/config';
+import { getRandomEmail, getRandomMobile, getRandomString,getRandomNumber } from '../utils/dataGenerators';
+import path from 'path';
 import fs from 'fs';
-
-// Get the current file and directory paths
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-// Base URL for the Astar Financial website
-const baseUrl = "https://astarfinancial.com.au/";
-// Helper functions for random data generation
-function getRandomString(length: number): string {
-  // Generate a random string of specified length using uppercase and lowercase letters
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-  return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
-}
-
-function getRandomNumber(min: number, max: number): number {
-  // Generate a random number between min and max (inclusive)
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function getRandomEmail(): string {
-  // Generate a random email address
-  return `${getRandomString(10)}@example.com`;
-}
-
-function getRandomMobile(): string {
-  // Generate a random Australian mobile number
-  return `04${Math.floor(Math.random() * 100000000).toString().padStart(8, '0')}`;
-}
 
 // Custom Test Fixtures
 type TestFixtures = {
@@ -37,118 +11,113 @@ type TestFixtures = {
   bookAppointmentPage: BookAppointmentPage;
 };
 
-// Extend Playwright's base test with custom fixtures
 const test = baseTest.extend<TestFixtures>({
   homePage: async ({ page }, use) => {
-    const homePage = new HomePage(page); // Initialize HomePage object
-    await use(homePage); // Provide it to the test
+    const homePage = new HomePage(page);
+    await use(homePage);
   },
   applyLoanPage: async ({ page }, use) => {
-    const applyLoanPage = new ApplyLoanPage(page); // Initialize ApplyLoanPage object
-    await use(applyLoanPage); // Provide it to the test
+    const applyLoanPage = new ApplyLoanPage(page);
+    await use(applyLoanPage);
   },
   bookAppointmentPage: async ({ page }, use) => {
-    const bookAppointmentPage = new BookAppointmentPage(page); // Initialize BookAppointmentPage object
-    await use(bookAppointmentPage); // Provide it to the test
+    const bookAppointmentPage = new BookAppointmentPage(page);
+    await use(bookAppointmentPage);
   },
 });
 
 // Page Object Model for HomePage
 class HomePage {
-    constructor(private page: Page) {}
-  
-    // Navigate to the homepage
-    async navigate() {
-      await this.page.goto(baseUrl, { timeout: 30000, waitUntil: 'load' });
-      await expect(this.page).toHaveTitle(/Astar Financial/i);
-      console.log(`Navigated to homepage: ${baseUrl}`);
-    }
-  
-    // Read the link structure from linkStructure.json
-    async getLinkStructure(): Promise<Record<string, string>> {
-      const filePath = path.resolve(__dirname, 'linkStructure.json');
-      if (!fs.existsSync(filePath)) {
-        throw new Error(`File not found: ${filePath}`);
-      }
-      const data = fs.readFileSync(filePath, 'utf-8');
-      return JSON.parse(data);
-    }
-    // Function to find an interactable link on the page
-    async  findInteractableLink(page: Page, href: string): Promise<Locator | null> {
-        const baseSelector = `a[href="${href}"]`;
-        const locators = await page.locator(baseSelector).all();
+  constructor(private page: Page) {}
 
-        for (const locator of locators) {
-            try {
-                await locator.scrollIntoViewIfNeeded(); // Scroll to the element if needed
-                if (await locator.isVisible() && await locator.isEnabled()) {
-                    return locator; // Return the first interactable link
-                }
-            } catch {
-                // Ignore non-interactable locators
-            }
-        }
-        return null;
+  async navigate() {
+    await this.page.goto(config.baseUrl, { timeout: config.defaultTimeout });
+    await expect(this.page).toHaveTitle(/Astar Financial/i);
+    console.log(`Navigated to homepage: ${config.baseUrl}`);
+  }
+
+  async getLinkStructure(): Promise<Record<string, string>> {
+    const filePath = path.resolve(config.dirPath, '../data/linkStructure.json');
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`File not found: ${filePath}`);
     }
-  
-    // Verify the links from the link structure
-    async verifyLinks() {
-      const linkStructure = await this.getLinkStructure();
-      for (const [childLink, parentDropdown] of Object.entries(linkStructure)) {
-        console.log(`Testing child link: ${childLink}, Parent dropdown: ${parentDropdown}`);
-  
-        // Hover over the parent dropdown if applicable
-        if (parentDropdown) {
+    const data = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(data);
+  }
+  // Function to find an interactable link on the page
+  async  findInteractableLink(page: Page, href: string): Promise<Locator | null> {
+    const baseSelector = `a[href="${href}"]`;
+    const locators = await page.locator(baseSelector).all();
+
+    for (const locator of locators) {
+        try {
+            await locator.scrollIntoViewIfNeeded(); // Scroll to the element if needed
+            if (await locator.isVisible() && await locator.isEnabled()) {
+                return locator; // Return the first interactable link
+            }
+        } catch (error) {
+            console.error(`Error finding interactable link for href: ${href}`, error);
+        }
+    }
+    return null;
+}
+
+  async verifyLinks() {
+    const linkStructure = await this.getLinkStructure();
+    for (const [childLink, parentDropdown] of Object.entries(linkStructure)) {
+      console.log(`Testing child link: ${childLink}, Parent dropdown: ${parentDropdown}`);
+
+      if (parentDropdown) {
        
-          const parentLocator = await this.findInteractableLink(this.page, parentDropdown);
-          if (parentLocator) { // Check if parentLocator is not null
-                console.log(`Hovering over parent dropdown: ${parentDropdown}`);
-                await parentLocator.hover();
-            } else {
-                console.warn(`Parent dropdown not found or not interactable: ${parentDropdown}`);
-                continue;
-            }
-        }
-  
-        // Verify the child link
-        const childLocator = await this.findInteractableLink(this.page, childLink);
-        if (!childLocator) {
-            console.warn(`Child link not interactable: ${childLink}`);
-            continue;
-        }
-        if (childLink !== '#') {
-            console.log(`Child link is interactable: ${childLink}`);
-            const startTime = Date.now();
-            try {
-                await Promise.all([
-                    this.page.waitForURL(childLink, { timeout: 20000, waitUntil: 'domcontentloaded' }), // Wait for the URL to change
-                    childLocator.click({ force: true }), // Click the child link
-                ]);
+        const parentLocator = await this.findInteractableLink(this.page, parentDropdown);
+        if (parentLocator) { // Check if parentLocator is not null
+              console.log(`Hovering over parent dropdown: ${parentDropdown}`);
+              await parentLocator.hover();
+          } else {
+              console.warn(`Parent dropdown not found or not interactable: ${parentDropdown}`);
+              continue;
+          }
+      }
 
-                await this.page.waitForTimeout(500); // Add a 500ms wait after the click
+      // Verify the child link
+      const childLocator = await this.findInteractableLink(this.page, childLink);
+      if (!childLocator) {
+          console.warn(`Child link not interactable: ${childLink}`);
+          continue;
+      }
+      if (childLink !== '#') {
+          console.log(`Child link is interactable: ${childLink}`);
+          const startTime = Date.now();
+          try {
+              await Promise.all([
+                  this.page.waitForURL(childLink, { timeout: 20000, waitUntil: 'domcontentloaded' }), // Wait for the URL to change
+                  childLocator.click({ force: true }), // Click the child link
+              ]);
 
-                const endTime = Date.now();
-                console.log(`Response time for ${childLink}: ${endTime - startTime}ms`);
+              await this.page.waitForTimeout(500); // Add a 500ms wait after the click
 
-                const title = await this.page.title();
-                expect(title).not.toBe('');
-                console.log(`Page title for ${childLink}: ${title}`);
-            } catch (error) {
-                console.error(`Error testing link ${childLink}: ${error.message}`);
-            } finally {
-                if (this.page.url() !== baseUrl) {
-                    try {
-                        await this.page.goto(baseUrl, { timeout: 20000, waitUntil: 'domcontentloaded' }); // Revert to waitUntil: 'domcontentloaded'
-                    } catch (error) {
-                        console.error(`Failed to navigate back to ${baseUrl}: ${error.message}`);
-                        return;
-                    }
-                }
-            }
-        }
+              const endTime = Date.now();
+              console.log(`Response time for ${childLink}: ${endTime - startTime}ms`);
+
+              const title = await this.page.title();
+              expect(title).not.toBe('');
+              console.log(`Page title for ${childLink}: ${title}`);
+          } catch (error) {
+              console.error(`Error testing link ${childLink}: ${error.message}`);
+          } finally {
+              if (this.page.url() !== config.baseUrl) {
+                  try {
+                      await this.page.goto(config.baseUrl, { timeout: 20000, waitUntil: 'domcontentloaded' }); // Revert to waitUntil: 'domcontentloaded'
+                  } catch (error) {
+                      console.error(`Failed to navigate back to ${config.baseUrl}: ${error.message}`);
+                      return;
+                  }
+              }
+          }
       }
     }
   }
+}
 
 class ApplyLoanPage {
   constructor(private page: Page) {}
