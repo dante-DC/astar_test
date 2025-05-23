@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { dirname, resolve } from 'path';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -14,4 +14,5 @@ export const config = {
   defaultTimeout: parseInt(process.env.DEFAULT_TIMEOUT || "30000"),
   filePath: __filename,
   dirPath: __dirname,
+  testDataPath: resolve(__dirname, '../test-data'),
 };

@@ -1,13 +1,15 @@
 # Astar Financial Automation Tests
 
-This repository contains automated test scripts for the Astar Financial website using Playwright. The tests cover various functionalities such as verifying links, applying for a home loan, and booking an appointment.
+This repository contains automated test scripts for the Astar Financial website using Playwright, featuring enhanced error handling, structured logging, and a modular architecture.
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
-- [Environment-Specific Configurations](#environment-specific-configurations)
-- [Test Structure](#test-structure)
+- [Project Structure](#project-structure)
+- [Features](#features)
 - [Running Tests](#running-tests)
+- [Error Handling](#error-handling)
+- [Logging](#logging)
 - [Test Cases](#test-cases)
 - [Contributing](#contributing)
 - [License](#license)
@@ -39,43 +41,54 @@ This repository contains automated test scripts for the Astar Financial website 
 
 ---
 
-## Environment-Specific Configurations
-1. Create a `.env` file in the root directory:
-   ```plaintext
-   BASE_URL=https://astarfinancial.com.au/
-   DEFAULT_TIMEOUT=30000
-   ```
-
-2. The tests will automatically use the values from `.env`.
-
----
-
-## Test Structure
-The repository is organized as follows:
-
+## Project Structure
 ```
 astar_test/
 ├── config/
-│   └── config.ts                  # Centralized configuration for the project
-├── data/
-│   └── linkStructure.json         # Test data for verifying links
+│   └── config.ts                  # Environment and configuration settings
+├── fixtures/
+│   └── test-fixtures.ts          # Shared test fixtures and setup
+├── pages/
+│   ├── HomePage.ts               # Homepage interactions
+│   ├── ApplyLoanPage.ts         # Loan application page
+│   └── BookAppointmentPage.ts    # Appointment booking page
+├── test-data/
+│   └── linkStructure.json       # Test data for link verification
 ├── tests/
-│   ├── astar-links.spec.ts        # Tests for verifying links on the homepage
-│   ├── astar-applyLoan.spec.ts    # Tests for applying for a home loan
-│   ├── astar-bookappointment.spec.ts # Tests for booking an appointment
-│   ├── astar-tests.spec.ts        # Consolidated tests using Page Object Model
+│   ├── astar-tests.spec.ts      # Main test specifications
+│   ├── astar-applyLoan.spec.ts
+│   └── astar-bookappointment.spec.ts
 ├── utils/
-│   └── dataGenerators.ts          # Helper functions for random data generation
-├── testcase1.md                   # Test case for verifying links
-├── testcase2.md                   # Test case for applying for a home loan
-├── testcase3.md                   # Test case for booking an appointment
-├── .env                           # Environment-specific configurations
-├── README.md                      # Documentation for the repository
-├── package.json                   # Project dependencies and scripts
-└── .github/
-    └── workflows/
-        └── astar_playwright.yml   # GitHub Actions workflow for CI/CD
+│   ├── dataGenerators.ts        # Test data generation utilities
+│   ├── errors.ts               # Custom error handling
+│   └── logger.ts              # Structured logging utility
+├── .env                        # Environment variables
+└── README.md
 ```
+
+---
+
+## Features
+### Enhanced Error Handling
+- Custom error classes for different types of failures:
+  - `NavigationError`: Navigation-related failures
+  - `ElementError`: Element interaction issues
+  - `NetworkError`: Network-related problems
+  - `TestError`: Base error class
+
+### Structured Logging
+- Comprehensive logging system with different levels:
+  ```typescript
+  const logger = Logger.create('HomePage');
+  logger.info('Starting navigation');
+  logger.error('Navigation failed', error);
+  logger.debug('Element state', { visible: true });
+  ```
+
+### Page Object Model
+- Modular page objects with encapsulated functionality
+- Shared fixtures for common operations
+- Type-safe interactions
 
 ---
 
@@ -102,16 +115,35 @@ astar_test/
 
 ---
 
-## Running Tests with Reporting
-1. Run all tests with HTML reporting:
-   ```bash
-   npm run test
-   ```
+## Error Handling
+### Custom Error Classes
+```typescript
+// Example usage
+try {
+  await page.navigate();
+} catch (error) {
+  if (error instanceof NavigationError) {
+    logger.error('Navigation failed', error);
+  } else if (error instanceof ElementError) {
+    logger.error('Element interaction failed', error);
+  }
+}
+```
 
-2. View the test report:
-   ```bash
-   npm run show-report
-   ```
+---
+
+## Logging
+### Log Levels
+- `INFO`: General information
+- `WARNING`: Potential issues
+- `ERROR`: Failures and errors
+- `DEBUG`: Detailed debugging information
+
+### Example
+```typescript
+logger.info('Test started', { testName: 'Apply Loan' });
+logger.error('Test failed', error, { step: 'form submission' });
+```
 
 ---
 
@@ -130,23 +162,6 @@ astar_test/
 - **File**: `astar-bookappointment.spec.ts`
 - **Description**: Tests the appointment booking flow up to the OTP request step.
 - **Test Case**: [testcase3.md](testcase3.md)
-
----
-
-## CI/CD Integration
-The repository includes a GitHub Actions workflow for automated test execution. The workflow is defined in `.github/workflows/astar_playwright.yml`.
-
-### Running CI/CD Workflow
-1. The workflow is triggered on:
-   - Push events to the `main` branch.
-   - Pull requests targeting the `main` branch.
-
-2. The workflow performs the following steps:
-   - Checks out the code.
-   - Sets up Node.js.
-   - Installs dependencies and Playwright browsers.
-   - Runs the tests.
-   - Uploads the test report as an artifact.
 
 ---
 
