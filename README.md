@@ -5,6 +5,7 @@ This repository contains automated test scripts for the Astar Financial website 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
+- [Environment-Specific Configurations](#environment-specific-configurations)
 - [Test Structure](#test-structure)
 - [Running Tests](#running-tests)
 - [Test Cases](#test-cases)
@@ -41,7 +42,7 @@ This repository contains automated test scripts for the Astar Financial website 
 ## Environment-Specific Configurations
 1. Create a `.env` file in the root directory:
    ```plaintext
-   BASE_URL=https://staging.astarfinancial.com.au/
+   BASE_URL=https://astarfinancial.com.au/
    DEFAULT_TIMEOUT=30000
    ```
 
@@ -54,15 +55,26 @@ The repository is organized as follows:
 
 ```
 astar_test/
+├── config/
+│   └── config.ts                  # Centralized configuration for the project
+├── data/
+│   └── linkStructure.json         # Test data for verifying links
 ├── tests/
-│   ├── astar-links.spec.ts          # Tests for verifying links on the homepage
-│   ├── astar-applyLoan.spec.ts      # Tests for applying for a home loan
+│   ├── astar-links.spec.ts        # Tests for verifying links on the homepage
+│   ├── astar-applyLoan.spec.ts    # Tests for applying for a home loan
 │   ├── astar-bookappointment.spec.ts # Tests for booking an appointment
-│   ├── astar-tests.spec.ts          # Consolidated tests using Page Object Model
-├── testcase1.md                     # Test case for verifying links
-├── testcase2.md                     # Test case for applying for a home loan
-├── testcase3.md                     # Test case for booking an appointment
-└── README.md                        # Documentation for the repository
+│   ├── astar-tests.spec.ts        # Consolidated tests using Page Object Model
+├── utils/
+│   └── dataGenerators.ts          # Helper functions for random data generation
+├── testcase1.md                   # Test case for verifying links
+├── testcase2.md                   # Test case for applying for a home loan
+├── testcase3.md                   # Test case for booking an appointment
+├── .env                           # Environment-specific configurations
+├── README.md                      # Documentation for the repository
+├── package.json                   # Project dependencies and scripts
+└── .github/
+    └── workflows/
+        └── astar_playwright.yml   # GitHub Actions workflow for CI/CD
 ```
 
 ---
@@ -103,7 +115,6 @@ astar_test/
 
 ---
 
-
 ## Test Cases
 ### 1. Verify Links on Homepage
 - **File**: `astar-links.spec.ts`
@@ -119,6 +130,23 @@ astar_test/
 - **File**: `astar-bookappointment.spec.ts`
 - **Description**: Tests the appointment booking flow up to the OTP request step.
 - **Test Case**: [testcase3.md](testcase3.md)
+
+---
+
+## CI/CD Integration
+The repository includes a GitHub Actions workflow for automated test execution. The workflow is defined in `.github/workflows/astar_playwright.yml`.
+
+### Running CI/CD Workflow
+1. The workflow is triggered on:
+   - Push events to the `main` branch.
+   - Pull requests targeting the `main` branch.
+
+2. The workflow performs the following steps:
+   - Checks out the code.
+   - Sets up Node.js.
+   - Installs dependencies and Playwright browsers.
+   - Runs the tests.
+   - Uploads the test report as an artifact.
 
 ---
 
