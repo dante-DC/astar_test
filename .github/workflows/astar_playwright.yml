@@ -28,7 +28,7 @@ jobs:
         run: npm run test
 
       - name: Upload test report
-        uses: actions/upload-artifact@v3.1.0 # Use a stable and valid version
+        uses: actions/upload-artifact@v3 # Use the latest stable version
         with:
           name: playwright-report
           path: playwright-report
