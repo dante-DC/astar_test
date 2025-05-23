@@ -28,7 +28,7 @@ jobs:
         run: npm run test
 
       - name: Upload test report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.2 # Specify a specific version to avoid missing download info error
         with:
           name: playwright-report
           path: playwright-report
