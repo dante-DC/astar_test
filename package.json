@@ -1,8 +1,11 @@
 {
+  "type": "module",
   "dependencies": {
     "playwright": "^1.51.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.52.0"
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.21"
   }
+  
 }
