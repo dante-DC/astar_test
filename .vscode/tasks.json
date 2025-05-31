@@ -1,0 +1,11 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "Install Playwright MCP",
+			"command": "npm install --save-dev @microsoft/mcp-playwright",
+			"group": "build"
+		}
+	]
+}
