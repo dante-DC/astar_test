@@ -34,7 +34,8 @@ test.describe('Astar Financial Website Link Tests', () => {
             await page.goto(baseUrl, { timeout: 30000, waitUntil: 'load' }); // Navigate to the base URL
             console.log(`Navigated to homepage: ${baseUrl}`);
         } catch (error) {
-            console.error(`Critical: Error navigating to homepage ${baseUrl}: ${error.message}`);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            console.error(`Critical: Error navigating to homepage ${baseUrl}: ${errorMessage}`);
             throw error; // Fail the test suite if navigation fails
         }
     });
@@ -168,13 +169,15 @@ test.describe('Astar Financial Website Link Tests', () => {
                     expect(title).not.toBe('');
                     console.log(`Page title for ${childLink}: ${title}`);
                 } catch (error) {
-                    console.error(`Error testing link ${childLink}: ${error.message}`);
+                    const errorMessage = error instanceof Error ? error.message : String(error);
+                    console.error(`Error testing link ${childLink}: ${errorMessage}`);
                 } finally {
                     if (page.url() !== baseUrl) {
                         try {
                             await page.goto(baseUrl, { timeout: 20000, waitUntil: 'domcontentloaded' }); // Revert to waitUntil: 'domcontentloaded'
                         } catch (error) {
-                            console.error(`Failed to navigate back to ${baseUrl}: ${error.message}`);
+                            const errorMessage = error instanceof Error ? error.message : String(error);
+                            console.error(`Failed to navigate back to ${baseUrl}: ${errorMessage}`);
                             return;
                         }
                     }

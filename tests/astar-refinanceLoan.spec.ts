@@ -1,129 +1,131 @@
-import { test, expect, BrowserContext, chromium } from '@playwright/test';
-import { RefinanceLoanPage } from '../pages/RefinanceLoanPage';
-import { getRandomString, getRandomNumber, getRandomEmail, getRandomMobile } from '../utils/dataGenerators';
+import { test, expect } from '@playwright/test';
+
+// Helper functions for random data generation
+function getRandomString(length: number): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+function getRandomNumber(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getRandomEmail(): string {
+  return `${getRandomString(10)}@example.com`;
+}
+
+function getRandomMobile(): string {
+  return `04${Math.floor(Math.random() * 100000000).toString().padStart(8, '0')}`;
+}
 
 test.describe('Refinance Home Loan Flow', () => {
-  let context: BrowserContext;
-
-  test.beforeEach(async ({ }) => {
-    // Launch browser with more realistic settings
-    const browser = await chromium.launch({
-      headless: false, // Run in non-headless mode for better stability
-      args: [
-        '--disable-blink-features=AutomationControlled',
-        '--disable-features=IsolateOrigins,site-per-process'
-      ]
-    });
-
-    // Create a context with more realistic browser settings
-    context = await browser.newContext({
-      ignoreHTTPSErrors: true,
-      bypassCSP: true,
-      viewport: { width: 1280, height: 720 },
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36',
-      permissions: ['geolocation'],
-      serviceWorkers: 'allow',
-      // Add common headers
-      extraHTTPHeaders: {
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8'
-      }
-    });
-  });
-
-  test.afterEach(async () => {
-    if (context) {
-      await context.close();
-    }
-  });
-
-  test('should complete refinance application up to OTP verification', async () => {
-    const page = await context.newPage();
-    const refinancePage = new RefinanceLoanPage(page);
+  test('should complete refinance application up to OTP verification', async ({ page }) => {
+    // Navigate directly to the refinance basics page
+    // This page already has the refinance form pre-loaded
+    await page.goto('https://astarfinancial.com.au/home-loans/basics/refinancing');
+    await page.waitForTimeout(1000);
     
-    try {
-      console.log('Starting refinance application test...');
+    // Step 1: Fill in current loan balance
+    await test.step('Fill current loan balance', async () => {
+      const loanBalanceField = page.getByRole('textbox', { name: 'Loan Balance' });
+      await loanBalanceField.fill(getRandomNumber(200000, 1500000).toString());
+      await page.getByRole('button', { name: 'Next' }).click();
+    });
+    
+    // Step 2: Fill in interest rate and rate type
+    await test.step('Fill interest rate and rate type', async () => {
+      await page.waitForTimeout(800);
+      const interestRateField = page.getByRole('textbox', { name: 'Interest Rate' });
+      await interestRateField.fill((getRandomNumber(35, 75) / 10).toString());
+      // "No" is typically pre-selected for "fixed rate", just click Next
+      await page.getByRole('button', { name: 'Next' }).click();
+    });
+    
+    // Step 3: Fill in current lender
+    await test.step('Fill in current lender', async () => {
+      await page.waitForTimeout(800);
+      const lenderField = page.getByRole('textbox', { name: 'Search for your lender' });
+      await lenderField.fill('Commonwealth Bank');
+      await page.getByRole('button', { name: 'Next' }).click();
+    });
+    
+    // Step 4: Fill in property worth
+    await test.step('Fill property worth', async () => {
+      await page.waitForTimeout(800);
+      const propertyWorthField = page.getByRole('textbox', { name: '$' });
+      await propertyWorthField.fill(getRandomNumber(300000, 2000000).toString());
+      await page.getByRole('button', { name: 'Next' }).click();
+    });
+    
+    // Step 5: Select refinancing goal - "Decrease repayments"
+    await test.step('Select refinancing goal', async () => {
+      await page.waitForTimeout(1000);
+      const decreaseBtn = page.getByRole('button', { name: 'Decrease repayments' });
+      await decreaseBtn.click();
+    });
+    
+    // Step 6: Select refinance timeline
+    await test.step('Select refinance timeline', async () => {
+      await page.waitForTimeout(800);
+      const timelineBtn = page.getByRole('button', { name: /-6 Months/ });
+      await timelineBtn.click();
+    });
+    
+    // Step 7: Select property usage
+    await test.step('Select property usage', async () => {
+      await page.waitForTimeout(800);
+      const usageBtn = page.getByRole('button', { name: 'I will live there' });
+      await usageBtn.click();
+    });
+    
+    // Step 8: Select credit history
+    await test.step('Select credit history', async () => {
+      await page.waitForTimeout(800);
+      const creditBtn = page.getByRole('button', { name: 'Excellent' });
+      await creditBtn.click();
+    });
+    
+    // Step 9: Select income type
+    await test.step('Select income type', async () => {
+      await page.waitForTimeout(800);
+      const incomeBtn = page.getByRole('button', { name: /I'm an employee/ });
+      await incomeBtn.click();
+    });
+    
+    // Step 10: Fill personal details
+    await test.step('Fill personal details', async () => {
+      await page.waitForTimeout(1000);
       
-      // Navigate to refinance page with retry logic
-      let retries = 3;
-      while (retries > 0) {
-        try {
-          await refinancePage.goto();
-          // Add additional wait for page stability
-          await page.waitForLoadState('networkidle').catch(() => {});
-          await page.waitForTimeout(2000); // Give extra time for JS to initialize
-          break;
-        } catch (error) {
-          console.log(`Navigation attempt failed (${retries} retries left):`, error);
-          retries--;
-          if (retries === 0) throw error;
-          await page.waitForTimeout(5000); // Increased wait time between retries
-        }
-      }
+      const fullNameField = page.getByRole('textbox', { name: 'Full name' });
+      await fullNameField.fill(getRandomString(8) + ' ' + getRandomString(8));
       
-      // Start refinance application
-      await test.step('Start application', async () => {
-        await refinancePage.startRefinanceApplication();
-      });
+      const emailField = page.getByRole('textbox', { name: 'Email Address' });
+      await emailField.fill(getRandomEmail());
       
-      // Fill loan details
-      await test.step('Fill loan details', async () => {
-        const loanAmount = getRandomNumber(200000, 1500000).toString();
-        await refinancePage.fillLoanAmount(loanAmount);
-        
-        const propertyValue = getRandomNumber(300000, 2000000).toString();
-        await refinancePage.fillPropertyValue(propertyValue);
-      });
+      const mobileField = page.getByRole('textbox', { name: 'Mobile number' });
+      await mobileField.fill(getRandomMobile());
       
-      // Answer qualification questions
-      await test.step('Answer qualification questions', async () => {
-        await refinancePage.selectRefinanceSituation('Just exploring options');
-        await refinancePage.selectFirstHomeBuyer(false);
-        await refinancePage.selectTimeline('-6 Months');
-        await refinancePage.selectCreditHistory('Excellent');
-        await refinancePage.selectIncomeSource('employee');
-      });
+      // Submit the application
+      const assessBtn = page.getByRole('button', { name: 'Assess my options' });
+      await assessBtn.click();
+    });
+    
+    // Step 11: Verify OTP verification screen
+    await test.step('Verify OTP verification', async () => {
+      await page.waitForTimeout(2000);
       
-      // Fill personal details
-      await test.step('Fill personal details', async () => {
-        await refinancePage.fillPersonalDetails(
-          getRandomString(8),
-          getRandomString(10),
-          getRandomEmail(),
-          getRandomMobile()
-        );
-      });
+      // Check for OTP-related elements
+      const otpHeading = page.getByRole('heading', { name: /SMS Verification|Verification/i });
+      const otpInput = page.getByRole('textbox', { name: /OTP|Code/i });
       
-      // Verify OTP screen
-      await test.step('Verify OTP screen', async () => {
-        await refinancePage.verifyOTPScreen();
-      });
+      await expect(otpHeading).toBeVisible();
+      await expect(otpInput).toBeVisible();
       
-      console.log('Test completed successfully');
-      
-    } catch (error) {
-      console.error('Test failed:', error);
-      
-      // Take a screenshot and save page content for debugging
-      try {
-        if (!page.isClosed()) {
-          const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-          await page.screenshot({ 
-            path: `test-results/refinance-error-${timestamp}.png`, 
-            fullPage: true 
-          });
-          
-          const html = await page.content();
-          await require('fs').promises.writeFile(
-            `test-results/refinance-error-${timestamp}.html`,
-            html
-          );
-        }
-      } catch (screenshotError) {
-        console.error('Failed to save error artifacts:', screenshotError);
-      }
-      
-      throw error;
-    }
+      console.log('✅ Successfully reached OTP verification step');
+    });
   });
 });

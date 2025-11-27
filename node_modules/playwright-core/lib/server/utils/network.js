@@ -44,6 +44,7 @@ var import_https = __toESM(require("https"));
 var import_url = __toESM(require("url"));
 var import_utilsBundle = require("../../utilsBundle");
 var import_happyEyeballs = require("./happyEyeballs");
+var import_manualPromise = require("../../utils/isomorphic/manualPromise");
 const NET_DEFAULT_TIMEOUT = 3e4;
 function httpRequest(params, onResponse, onError) {
   const parsedUrl = import_url.default.parse(params.url);
@@ -55,62 +56,71 @@ function httpRequest(params, onResponse, onError) {
   };
   if (params.rejectUnauthorized !== void 0)
     options.rejectUnauthorized = params.rejectUnauthorized;
-  const timeout = params.timeout ?? NET_DEFAULT_TIMEOUT;
   const proxyURL = (0, import_utilsBundle.getProxyForUrl)(params.url);
   if (proxyURL) {
-    const parsedProxyURL = import_url.default.parse(proxyURL);
     if (params.url.startsWith("http:")) {
+      const parsedProxyURL = import_url.default.parse(proxyURL);
       options = {
         path: parsedUrl.href,
         host: parsedProxyURL.hostname,
         port: parsedProxyURL.port,
+        protocol: parsedProxyURL.protocol || "http:",
         headers: options.headers,
         method: options.method
       };
     } else {
-      parsedProxyURL.secureProxy = parsedProxyURL.protocol === "https:";
-      options.agent = new import_utilsBundle.HttpsProxyAgent(parsedProxyURL);
+      options.agent = new import_utilsBundle.HttpsProxyAgent(normalizeProxyURL(proxyURL));
       options.rejectUnauthorized = false;
     }
   }
+  let cancelRequest;
   const requestCallback = (res) => {
     const statusCode = res.statusCode || 0;
     if (statusCode >= 300 && statusCode < 400 && res.headers.location) {
       request.destroy();
-      httpRequest({ ...params, url: new URL(res.headers.location, params.url).toString() }, onResponse, onError);
+      cancelRequest = httpRequest({ ...params, url: new URL(res.headers.location, params.url).toString() }, onResponse, onError).cancel;
     } else {
       onResponse(res);
     }
   };
   const request = options.protocol === "https:" ? import_https.default.request(options, requestCallback) : import_http.default.request(options, requestCallback);
   request.on("error", onError);
-  if (timeout !== void 0) {
-    const rejectOnTimeout = () => {
-      onError(new Error(`Request to ${params.url} timed out after ${timeout}ms`));
+  if (params.socketTimeout !== void 0) {
+    request.setTimeout(params.socketTimeout, () => {
+      onError(new Error(`Request to ${params.url} timed out after ${params.socketTimeout}ms`));
       request.abort();
-    };
-    if (timeout <= 0) {
-      rejectOnTimeout();
+    });
+  }
+  cancelRequest = (e) => {
+    try {
+      request.destroy(e);
+    } catch {
+    }
+  };
+  request.end(params.data);
+  return { cancel: (e) => cancelRequest(e) };
+}
+async function fetchData(progress, params, onError) {
+  const promise = new import_manualPromise.ManualPromise();
+  const { cancel } = httpRequest(params, async (response) => {
+    if (response.statusCode !== 200) {
+      const error = onError ? await onError(params, response) : new Error(`fetch failed: server returned code ${response.statusCode}. URL: ${params.url}`);
+      promise.reject(error);
       return;
     }
-    request.setTimeout(timeout, rejectOnTimeout);
+    let body = "";
+    response.on("data", (chunk) => body += chunk);
+    response.on("error", (error) => promise.reject(error));
+    response.on("end", () => promise.resolve(body));
+  }, (error) => promise.reject(error));
+  if (!progress)
+    return promise;
+  try {
+    return await progress.race(promise);
+  } catch (error) {
+    cancel(error);
+    throw error;
   }
-  request.end(params.data);
-}
-function fetchData(params, onError) {
-  return new Promise((resolve, reject) => {
-    httpRequest(params, async (response) => {
-      if (response.statusCode !== 200) {
-        const error = onError ? await onError(params, response) : new Error(`fetch failed: server returned code ${response.statusCode}. URL: ${params.url}`);
-        reject(error);
-        return;
-      }
-      let body = "";
-      response.on("data", (chunk) => body += chunk);
-      response.on("error", (error) => reject(error));
-      response.on("end", () => resolve(body));
-    }, reject);
-  });
 }
 function shouldBypassProxy(url2, bypass) {
   if (!bypass)
@@ -124,27 +134,33 @@ function shouldBypassProxy(url2, bypass) {
   const domain = "." + url2.hostname;
   return domains.some((d) => domain.endsWith(d));
 }
+function normalizeProxyURL(proxy) {
+  proxy = proxy.trim();
+  if (!/^\w+:\/\//.test(proxy))
+    proxy = "http://" + proxy;
+  return new URL(proxy);
+}
 function createProxyAgent(proxy, forUrl) {
   if (!proxy)
     return;
   if (forUrl && proxy.bypass && shouldBypassProxy(forUrl, proxy.bypass))
     return;
-  let proxyServer = proxy.server.trim();
-  if (!/^\w+:\/\//.test(proxyServer))
-    proxyServer = "http://" + proxyServer;
-  const proxyOpts = import_url.default.parse(proxyServer);
-  if (proxyOpts.protocol?.startsWith("socks")) {
-    return new import_utilsBundle.SocksProxyAgent({
-      host: proxyOpts.hostname,
-      port: proxyOpts.port || void 0
-    });
+  const proxyURL = normalizeProxyURL(proxy.server);
+  if (proxyURL.protocol?.startsWith("socks")) {
+    if (proxyURL.protocol === "socks5:")
+      proxyURL.protocol = "socks5h:";
+    else if (proxyURL.protocol === "socks4:")
+      proxyURL.protocol = "socks4a:";
+    return new import_utilsBundle.SocksProxyAgent(proxyURL);
   }
-  if (proxy.username)
-    proxyOpts.auth = `${proxy.username}:${proxy.password || ""}`;
+  if (proxy.username) {
+    proxyURL.username = proxy.username;
+    proxyURL.password = proxy.password || "";
+  }
   if (forUrl && ["ws:", "wss:"].includes(forUrl.protocol)) {
-    return new import_utilsBundle.HttpsProxyAgent(proxyOpts);
+    return new import_utilsBundle.HttpsProxyAgent(proxyURL);
   }
-  return new import_utilsBundle.HttpsProxyAgent(proxyOpts);
+  return new import_utilsBundle.HttpsProxyAgent(proxyURL);
 }
 function createHttpServer(...args) {
   const server = import_http.default.createServer(...args);

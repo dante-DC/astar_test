@@ -4,7 +4,7 @@ export default defineConfig({
   testDir: 'tests',
   use: {
     browserName: 'chromium',
-    headless: true,
+    headless: false,
   },
   reporter: [['html', { open: 'never', outputFolder: 'playwright-report' }]],
 });

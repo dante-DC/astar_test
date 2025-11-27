@@ -1,0 +1,143 @@
+# Page snapshot
+
+```yaml
+- generic:
+  - banner:
+    - generic [ref=e3]:
+      - link [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img [ref=e6]
+      - navigation "Thirteenth navbar example" [ref=e8]:
+        - list [ref=e10]:
+          - listitem [ref=e11]:
+            - link "Home Loans" [ref=e12] [cursor=pointer]:
+              - /url: /astar
+          - listitem [ref=e13]:
+            - link "Talk to a broker" [ref=e14] [cursor=pointer]:
+              - /url: https://astarfinancial.com.au/book-appointment
+          - listitem [ref=e15]:
+            - link "Financial" [ref=e16] [cursor=pointer]:
+              - /url: financial-products
+          - listitem [ref=e17]:
+            - link "Contact" [ref=e18] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e19]:
+            - link "Apply now" [ref=e20] [cursor=pointer]:
+              - /url: https://astarfinancial.com.au/apply-now
+          - button "Login" [ref=e22] [cursor=pointer]
+  - main:
+    - generic [ref=e26]:
+      - heading "Book an appointment with one of our experts" [level=1] [ref=e27]
+      - paragraph [ref=e28]: We’ll help you find the right home loan for your situation.
+      - generic [ref=e29]:
+        - paragraph [ref=e30]: Please provide an Australian mobile phone number, select a date and loan type.
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - generic [ref=e33]: Select Appointment Date
+            - textbox "Select Appointment Date" [ref=e34]: 2025-11-28
+          - generic [ref=e35]:
+            - generic [ref=e36]: Select Time Slot
+            - combobox "Select Time Slot" [ref=e37]:
+              - option "-- Select a Time Slot --"
+              - option "09:00 AM" [selected]
+              - option "11:00 AM"
+              - option "01:00 PM"
+              - option "03:00 PM"
+              - option "05:00 PM"
+          - generic [ref=e38]:
+            - generic [ref=e39]: Select Loan Type
+            - combobox "Select Loan Type" [ref=e40]:
+              - option "-- Select Loan Type --"
+              - option "Home Loan" [selected]
+              - option "Commercial Loan"
+              - option "Business Loan"
+          - generic [ref=e41]:
+            - generic [ref=e42]: Enter name
+            - textbox "Enter name" [active] [ref=e43]
+          - generic [ref=e44]:
+            - generic [ref=e45]: Enter email
+            - textbox "Enter email" [ref=e46]:
+              - /placeholder: Enter email address
+          - generic [ref=e47]:
+            - textbox "+61" [ref=e48]: "0451251789"
+            - button "Get OTP" [ref=e49] [cursor=pointer]
+      - paragraph [ref=e50]: By clicking 'GET OTP', you consent to our Privacy Statement and Terms.
+  - generic [ref=e51]:
+    - generic:
+      - img [ref=e52]
+      - paragraph [ref=e53]:
+        - text: Back to Top
+        - button "Back to Top" [ref=e54] [cursor=pointer]:
+          - img [ref=e55]
+  - contentinfo [ref=e56]:
+    - generic [ref=e57]:
+      - generic [ref=e58]:
+        - generic [ref=e59]:
+          - heading "Home Loans" [level=3] [ref=e60]
+          - list [ref=e61]:
+            - listitem [ref=e62]:
+              - link "Buy a new home" [ref=e63] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/buy-new-home
+            - listitem [ref=e64]:
+              - link "Refinance my home loan" [ref=e65] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/refinance-home-loan
+            - listitem [ref=e66]:
+              - link "Buy an investment property" [ref=e67] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/buy-investment-property
+            - listitem [ref=e68]:
+              - link "Compare Rates" [ref=e69] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/compare-rates
+        - generic [ref=e70]:
+          - heading "Financial Products" [level=3] [ref=e71]
+          - list [ref=e72]:
+            - listitem [ref=e73]:
+              - link "Commercial Loan" [ref=e74] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/commercial-loan
+            - listitem [ref=e75]:
+              - link "Business Loans" [ref=e76] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/business-loan
+            - listitem [ref=e77]:
+              - link "Home loan" [ref=e78] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/home-loan
+        - generic [ref=e79]:
+          - heading "Company" [level=3] [ref=e80]
+          - list [ref=e81]:
+            - listitem [ref=e82]:
+              - link "About us" [ref=e83] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/about-us
+        - generic [ref=e84]:
+          - heading "Legal" [level=3] [ref=e85]
+          - list [ref=e86]:
+            - listitem [ref=e87]:
+              - link "Privacy" [ref=e88] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/privacy
+        - generic [ref=e89]:
+          - heading "Contact" [level=3] [ref=e90]
+          - list [ref=e91]:
+            - listitem [ref=e92]:
+              - link "Contact us" [ref=e93] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/get-in-touch
+            - listitem [ref=e94]:
+              - link "Book an appointment" [ref=e95] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/book-appointment
+            - listitem [ref=e96]:
+              - link "Admin Login" [ref=e97] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/admin/login
+      - list [ref=e100]:
+        - listitem:
+          - link:
+            - /url: "#"
+        - listitem:
+          - link:
+            - /url: "#"
+        - listitem:
+          - link:
+            - /url: "#"
+        - listitem:
+          - link:
+            - /url: "#"
+        - listitem:
+          - link:
+            - /url: "#"
+  - paragraph [ref=e103]: We acknowledge the Traditional Owners of the many lands where we live and work and pay our respects to Elders past, present and emerging. We celebrate the stories, culture and traditions of Aboriginal and Torres Strait Islander Elders of all communities from the many lands where we live, work and gather.
+```

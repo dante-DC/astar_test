@@ -1,0 +1,116 @@
+# Page snapshot
+
+```yaml
+- generic [active]:
+  - banner:
+    - generic [ref=e3]:
+      - link [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img [ref=e6]
+      - navigation "Thirteenth navbar example" [ref=e8]:
+        - list [ref=e10]:
+          - listitem [ref=e11]:
+            - link "Home Loans" [ref=e12] [cursor=pointer]:
+              - /url: /astar
+          - listitem [ref=e13]:
+            - link "Talk to a broker" [ref=e14] [cursor=pointer]:
+              - /url: https://astarfinancial.com.au/book-appointment
+          - listitem [ref=e15]:
+            - link "Financial" [ref=e16] [cursor=pointer]:
+              - /url: financial-products
+          - listitem [ref=e17]:
+            - link "Contact" [ref=e18] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e19]:
+            - link "Apply now" [ref=e20] [cursor=pointer]:
+              - /url: https://astarfinancial.com.au/apply-now
+          - button "Login" [ref=e22] [cursor=pointer]
+  - main:
+    - generic [ref=e30]:
+      - heading "Your home loan options await!" [level=1] [ref=e31]
+      - paragraph [ref=e32]: Enter your details to access your loan options.
+      - generic [ref=e33]:
+        - generic [ref=e34]:
+          - textbox "Full name" [ref=e35]
+          - textbox "Mobile number" [ref=e36]
+          - textbox "Email Address" [ref=e37]
+        - button "Assess my options" [ref=e38] [cursor=pointer]
+  - generic [ref=e39]:
+    - generic:
+      - img [ref=e40]
+      - paragraph [ref=e41]:
+        - text: Back to Top
+        - button "Back to Top" [ref=e42] [cursor=pointer]:
+          - img [ref=e43]
+  - contentinfo [ref=e44]:
+    - generic [ref=e45]:
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - heading "Home Loans" [level=3] [ref=e48]
+          - list [ref=e49]:
+            - listitem [ref=e50]:
+              - link "Buy a new home" [ref=e51] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/buy-new-home
+            - listitem [ref=e52]:
+              - link "Refinance my home loan" [ref=e53] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/refinance-home-loan
+            - listitem [ref=e54]:
+              - link "Buy an investment property" [ref=e55] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/buy-investment-property
+            - listitem [ref=e56]:
+              - link "Compare Rates" [ref=e57] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/compare-rates
+        - generic [ref=e58]:
+          - heading "Financial Products" [level=3] [ref=e59]
+          - list [ref=e60]:
+            - listitem [ref=e61]:
+              - link "Commercial Loan" [ref=e62] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/commercial-loan
+            - listitem [ref=e63]:
+              - link "Business Loans" [ref=e64] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/business-loan
+            - listitem [ref=e65]:
+              - link "Home loan" [ref=e66] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/home-loan
+        - generic [ref=e67]:
+          - heading "Company" [level=3] [ref=e68]
+          - list [ref=e69]:
+            - listitem [ref=e70]:
+              - link "About us" [ref=e71] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/about-us
+        - generic [ref=e72]:
+          - heading "Legal" [level=3] [ref=e73]
+          - list [ref=e74]:
+            - listitem [ref=e75]:
+              - link "Privacy" [ref=e76] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/privacy
+        - generic [ref=e77]:
+          - heading "Contact" [level=3] [ref=e78]
+          - list [ref=e79]:
+            - listitem [ref=e80]:
+              - link "Contact us" [ref=e81] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/get-in-touch
+            - listitem [ref=e82]:
+              - link "Book an appointment" [ref=e83] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/book-appointment
+            - listitem [ref=e84]:
+              - link "Admin Login" [ref=e85] [cursor=pointer]:
+                - /url: https://astarfinancial.com.au/admin/login
+      - list [ref=e88]:
+        - listitem:
+          - link:
+            - /url: "#"
+        - listitem:
+          - link:
+            - /url: "#"
+        - listitem:
+          - link:
+            - /url: "#"
+        - listitem:
+          - link:
+            - /url: "#"
+        - listitem:
+          - link:
+            - /url: "#"
+  - paragraph [ref=e91]: We acknowledge the Traditional Owners of the many lands where we live and work and pay our respects to Elders past, present and emerging. We celebrate the stories, culture and traditions of Aboriginal and Torres Strait Islander Elders of all communities from the many lands where we live, work and gather.
+```
